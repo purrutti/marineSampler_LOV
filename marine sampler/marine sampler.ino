@@ -159,7 +159,7 @@ void setup()
 
     if (Serial.read() == 121)// Is it "y"?
     {
-        Serial.println(F("Send a custom command? <y/n>"));
+        Serial.println(F("Send a command to OPTOD? <y/n>"));
         serialClearAndWait();
         if (Serial.read() == 121)// Is it "y"?
         {
@@ -348,6 +348,10 @@ void setup()
     logfile.print(F("Rotation Duration = "));
     logfile.print(rotationDuration);
     logfile.println(F(" secs"));
+    //Print headers
+    logfile.println(F("O2SampleCount;rotationCount;badRotationCount;Date;Time;Battery(V);Average Motor Current;OPTOD Model;OPTOD Serial;???;Concentration;Saturation;Temperature;???;"));
+
+
     logfile.flush();
     elapsedTimeSecs = 0;
     missionDurationSecs = (missionDuration * 3600);
@@ -659,6 +663,9 @@ void writeDataToSD()
     serialDateTimeDisplay();
     readBattV();
 
+    logfile.print(motorCurrentMeasuredLast);
+    logfile.print(";");
+
     while (mySerial.available() > 0)
     {
         mySerial.read();
@@ -686,7 +693,6 @@ void writeDataToSD()
         delay(50);
 
     }
-
     logfile.println();
     logfile.flush();
 }
@@ -721,16 +727,17 @@ int readDataFromSD()
     if (Serial.available())
     {
         fileName[6] = Serial.read();
-        if (fileName[6] < '0' || fileName[6] > '9')
-        {
-            Serial.println("Syntax error!");
-            return 1;
-        }
     }
     serialClearAndWait();
     if (Serial.available())
     {
         fileName[7] = Serial.read();
+
+        if (fileName[6] < '0' || fileName[6] > '9')
+        {
+            Serial.println("Syntax error!");
+            return 1;
+        }
         if (fileName[7] < '0' || fileName[7] > '9')
         {
             Serial.println("Syntax error!");

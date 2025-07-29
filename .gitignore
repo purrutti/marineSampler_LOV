@@ -9,3 +9,10 @@
 */Debug/*
 */Release/*
 *.vcx*
+/.vs/marine sampler/v17/Browse.VC.opendb
+/.vs/marine sampler/FileContentIndex/15d1e384-3cff-4495-b4ba-1fb27b7324ea.vsidx
+/.vs/marine sampler/FileContentIndex/aa285a5c-7268-482a-9502-cf7ce2af4b0e.vsidx
+/.vs/marine sampler/v17/ipch/AutoPCH/b2bfbfc6f38605ae/MARINE SAMPLER.ipch
+/.vs/marine sampler/v17/Browse.VC.db
+/.vs/marine sampler/v17/Browse.VC.db-shm
+/.vs/marine sampler/v17/Browse.VC.db-wal
