@@ -317,7 +317,7 @@ void setup()
             root = SD.open("/");
             printDirectory(root, 0);
             Serial.println(F("Enter XX part of Filename <LOGGERXX.CSV>"));
-            serialClearAndWait();
+            //serialClearAndWait();
             errorState = readDataFromSD();
             while (errorState == 1)
             {
@@ -328,9 +328,11 @@ void setup()
     }
 
 
-    Serial.println(F("Waiting for START button press (or press any key)"));
-    while (digitalRead(startButton) == 1)
-    {
+    Serial.println(F("Type START to start the mission"));
+    serialClearAndWait();
+    while (1) {
+        String s = Serial.readString();
+        if (s.indexOf("START") >= 0) break;
     }
     openLogFile(); // open logfile and save mission parameters
     logfile.print(F("Motor Speed = "));
@@ -358,6 +360,7 @@ void setup()
     collectionDurationSecs = (collectionDuration * 3600);
     logFlag = 1;
     now = RTC.now();
+    Serial.println("Starting LOOP");
 }
 unsigned long m;
 void loop()
@@ -666,6 +669,13 @@ void writeDataToSD()
     logfile.print(motorCurrentMeasuredLast);
     logfile.print(";");
 
+    dosample();
+    logfile.println();
+    logfile.flush();
+}
+
+void dosample() {
+
     while (mySerial.available() > 0)
     {
         mySerial.read();
@@ -673,8 +683,9 @@ void writeDataToSD()
 
 
     mySerial.println("////////////");
-    delay(1);
+     delay(100);
     mySerial.print("\r\n");
+     delay(100);
     mySerial.print("do sample\r\n");
     while (mySerial.available() == 0)
     {
@@ -684,17 +695,43 @@ void writeDataToSD()
     int params = 0;
     while ((mySerial.available() > 0))
     {
-        params++;
+        /*params++;
         if (params >= 13) break;
         float val = mySerial.parseFloat();
         Serial.println(val);
         logfile.print(val, 3);
         logfile.print(";");
-        delay(50);
+        //delay(50);
+        */
+        String s = mySerial.readString();
+        Serial.println(s);
+        s=s.substring(s.indexOf("4831"));
+        // Supprimer tous les caractères non numériques sauf '.' avec une regex
+        s.replace("#", "");
+        // Remplacer les espaces et tabulations par des ';'
+        s.replace(" ", ";");
+        s.replace("\t", ";");
+        // Supprimer les sauts de ligne
+        s.replace("\r", "");
+        s.replace("\n", "");
+        Serial.print(s);
+        logfile.print(s);
 
+        /*char c = mySerial.read();
+        logfile.print(c);
+        Serial.print(c);*/
+        //logfile.print(mySerial.read());
+
+        /*if ((c >= '0' && c <= '9') || c == '.') {
+            logfile.print(c);
+            Serial.print(c);
+        }
+        else if (c == ' ' || c == '\t') {
+            logfile.print(';');
+            Serial.print(';');
+        }*/
     }
-    logfile.println();
-    logfile.flush();
+
 }
 
 
@@ -715,7 +752,18 @@ void sendCmd(String cmd)
         }
         while ((mySerial.available() > 0))
         {
-            Serial.println(mySerial.readString());
+            String s = mySerial.readString();
+            Serial.println(s);
+            s = s.substring(s.indexOf("4831"));
+            // Supprimer tous les caractères non numériques sauf '.' avec une regex
+            s.replace("#", "");
+            // Remplacer les espaces et tabulations par des ';'
+            s.replace(" ", ";");
+            s.replace("\t", ";");
+            // Supprimer les sauts de ligne
+            s.replace("\r", "");
+            s.replace("\n", "");
+            Serial.println(s);
         }
 }
 
