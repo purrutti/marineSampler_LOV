@@ -674,6 +674,7 @@ void writeDataToSD()
     logfile.flush();
 }
 
+/*
 void dosample() {
 
     while (mySerial.available() > 0)
@@ -702,7 +703,7 @@ void dosample() {
         logfile.print(val, 3);
         logfile.print(";");
         //delay(50);
-        */
+        
         String s = mySerial.readString();
         Serial.println(s);
         s=s.substring(s.indexOf("4831"));
@@ -729,9 +730,55 @@ void dosample() {
         else if (c == ' ' || c == '\t') {
             logfile.print(';');
             Serial.print(';');
-        }*/
+        }
     }
 
+}*/
+
+void dosample() {
+    while (mySerial.available() > 0)
+    {
+        mySerial.read();
+    }
+
+    mySerial.println("////////////");
+    delay(100);
+    mySerial.print("\r\n");
+    delay(100);
+    mySerial.print("do sample\r\n");
+
+    unsigned long start = millis();
+    while (mySerial.available() == 0)
+    {
+        if (millis() - start > 5000) {
+            Serial.println("Timeout waiting for response from optode");
+            return;
+        }
+    }
+
+    char c;
+    bool inData = false;
+
+    start = millis();
+    while ((millis() - start < 1000))
+    {
+        if (mySerial.available() > 0) {
+            c = mySerial.read();
+            if ((c >= '0' && c <= '9') || c == '.') {
+                logfile.print(c);
+                Serial.print(c);
+            }
+            else if (c == ' ' || c == '\t') {
+                logfile.print(';');
+                Serial.print(';');
+            }
+            start = millis();
+        }
+
+    }
+
+    logfile.println();
+    Serial.println();
 }
 
 
@@ -746,7 +793,45 @@ void sendCmd(String cmd)
         Serial.print(F("Command sent:"));
         Serial.println(cmd);
         Serial.print(F("Response:"));
+
+        unsigned long start = millis();
         while (mySerial.available() == 0)
+        {
+            if (millis() - start > 5000) {
+                Serial.println("Timeout waiting for response from optode");
+                return;
+            }
+        }
+
+        char c;
+        bool inData = false;
+
+        start = millis();
+        while ((millis() - start < 1000))
+        {
+            if (mySerial.available() > 0) {
+                c = mySerial.read();
+                /*if (c == '4' && mySerial.peek() == '8') {
+                    inData = true;
+                }
+
+                if (inData) {*/
+                    if ((c >= '0' && c <= '9') || c == '.') {
+                        //logfile.print(c);
+                        Serial.print(c);
+                    }
+                    else if (c == ' '||c=='\t') {
+                        //logfile.print(';');
+                        Serial.print(';');
+                    }
+                //}
+                start = millis();
+            }
+           
+        }
+
+
+       /* while (mySerial.available() == 0)
         {
             //wait for data
         }
@@ -764,7 +849,7 @@ void sendCmd(String cmd)
             s.replace("\r", "");
             s.replace("\n", "");
             Serial.println(s);
-        }
+        }*/
 }
 
 //************************************************
